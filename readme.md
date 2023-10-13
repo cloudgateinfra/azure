@@ -83,3 +83,5 @@ This repository contains intricate CI/CD pipelines designed for various scenario
 Each pipeline demonstrates a high level of technical sophistication in CI/CD practices within Azure Pipelines, reflecting a mature approach to continuous integration and continuous deployment. Ensure to replace placeholder values with your actual values where necessary.
 
 For a deeper understanding, refer to the `azure-pipelines.yml` file in the respective directories of this repository.
+
+Ensure to replace placeholder values (e.g., `Your_SonarCloud_Project_Key`, `Your_SonarCloud_Org`, `$(dockerHubUsername)`, `$(dockerHubPassword)`) with your actual values. Secure sensitive information like passwords using [Azure Pipelines secret variables](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables) or a secure configuration management solution.
