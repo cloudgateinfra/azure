@@ -23,10 +23,6 @@ Each pipeline is triggered on changes to the `master` branch and utilizes the la
 
 ---
 
-## Maven Build and SonarCloud Analysis (Alternative Setup)
-
-Similar to Pipeline 1 with the same objective of building the Maven project and conducting SonarCloud analysis.
-
 ---
 
 ## Node.js Build and Docker Image Push
