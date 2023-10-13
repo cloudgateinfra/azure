@@ -5,7 +5,7 @@ Each pipeline is triggered on changes to the `master` branch and utilizes the la
 
 ---
 
-## Pipeline 1: Maven Build and SonarCloud Analysis
+## Maven Build and SonarCloud Analysis
 
 - **Trigger**: 
   - Branch: `master`
@@ -23,13 +23,13 @@ Each pipeline is triggered on changes to the `master` branch and utilizes the la
 
 ---
 
-## Pipeline 2: Maven Build and SonarCloud Analysis (Alternative Setup)
+## Maven Build and SonarCloud Analysis (Alternative Setup)
 
 Similar to Pipeline 1 with the same objective of building the Maven project and conducting SonarCloud analysis.
 
 ---
 
-## Pipeline 3: Node.js Build and Docker Image Push
+## Node.js Build and Docker Image Push
 
 - **Trigger**:
   - Branch: `master`
@@ -47,7 +47,7 @@ Similar to Pipeline 1 with the same objective of building the Maven project and 
 
 ---
 
-## Pipeline 4: Python Setup, Testing, and Database Migration
+## Python Setup, Testing, and Database Migration
 
 - **Trigger**:
   - Branch: `master`
