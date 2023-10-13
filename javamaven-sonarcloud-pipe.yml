@@ -1,0 +1,32 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - name: 'sonarProjectKey'
+    value: 'Your_SonarCloud_Project_Key'
+  - name: 'sonarOrganization'
+    value: 'Your_SonarCloud_Org'
+
+stages:
+- stage: BuildAndAnalyze
+  jobs:
+  - job: Build
+    steps:
+    - task: Maven@3
+      inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'clean verify'
+        options: '-DskipTests'
+        publishJUnitResults: true
+        testResultsFiles: '**/surefire-reports/TEST-*.xml'
+    - task: SonarCloudPrepare@1
+      inputs:
+        SonarCloud: 'Your_SonarCloud_ServiceConnection'
+        organization: '$(sonarOrganization)'
+        scannerMode: 'Other'
+        extraProperties: |
+          sonar.projectKey=$(sonarProjectKey)
+    - task: SonarCloudAnalyze@1

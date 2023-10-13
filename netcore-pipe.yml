@@ -1,0 +1,36 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - script: dotnet restore
+      displayName: 'DotNet Restore'
+    - script: dotnet build --configuration $(buildConfiguration)
+      displayName: 'DotNet Build'
+    - script: dotnet test --configuration $(buildConfiguration) --collect:"Code coverage"
+      displayName: 'DotNet Test'
+
+- stage: Deploy
+  jobs:
+  - deployment: Deploy
+    environment: 'Production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - script: dotnet publish -c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory)
+            displayName: 'DotNet Publish'
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'webapp'
+              publishLocation: 'Container'
