@@ -1,0 +1,76 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/*
+    exclude:
+    - README.md
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: 'Python-Vars'
+  - name: 'pythonVersion'
+    value: '3.8'
+  - name: 'environmentName'
+    value: 'MyEnv'
+
+resources:
+  repositories:
+  - repository: MyGitRepo
+    type: git
+    name: MyProject/MyGitRepo
+
+stages:
+- stage: InstallAndTest
+  displayName: 'Install and Test Stage'
+  jobs:
+  - job: Setup
+    displayName: 'Setup Job'
+    steps:
+    - checkout: MyGitRepo
+      fetchDepth: 1
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '$(pythonVersion)'
+        addToPath: true
+
+    - task: Cache@2
+      inputs:
+        key: 'pip | "$(Agent.OS)" | requirements.txt'
+        restoreKeys: |
+          pip | "$(Agent.OS)"
+        path: $(PIP_CACHE_DIR)
+      displayName: 'Cache pip packages'
+
+    - script: python -m venv $(environmentName)
+      displayName: 'Create Virtual Environment'
+
+    - script: |
+        source $(environmentName)/bin/activate
+        pip install -r requirements.txt
+      displayName: 'Install Dependencies'
+
+    - script: |
+        source $(environmentName)/bin/activate
+        pytest
+      displayName: 'Run Tests'
+
+- stage: MigrateDatabase
+  displayName: 'Migrate Database Stage'
+  dependsOn: InstallAndTest
+  condition: succeeded()
+  jobs:
+  - job: Migrate
+    displayName: 'Migrate Job'
+    steps:
+    - script: |
+        source $(environmentName)/bin/activate
+        python manage.py migrate
+      displayName: 'Run Migrations'

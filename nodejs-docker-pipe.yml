@@ -1,0 +1,67 @@
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - src/*
+    exclude:
+    - README.md
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: 'Docker-Vars'
+  - name: 'imageName'
+    value: 'nodejs-image'
+  - name: 'registry'
+    value: 'docker.io'
+  - name: 'BuildPlatform'
+    value: 'linux'
+
+resources:
+  repositories:
+  - repository: MyGitRepo
+    type: git
+    name: MyProject/MyGitRepo
+
+stages:
+- stage: Build
+  displayName: 'Build Stage'
+  jobs:
+  - job: Build
+    displayName: 'Build Job'
+    steps:
+    - checkout: MyGitRepo
+      fetchDepth: 1
+
+    - task: Cache@2
+      inputs:
+        key: 'npm | "$(Agent.OS)" | **/package-lock.json,!**/node_modules/**'
+        restoreKeys: |
+          npm | "$(Agent.OS)"
+        path: $(System.DefaultWorkingDirectory)/node_modules
+      displayName: 'Cache Node Modules'
+
+    - script: npm ci
+      displayName: 'Install Dependencies'
+      
+    - script: npm test
+      displayName: 'Run Tests'
+
+    - script: docker login -u $(dockerHubUsername) -p $(dockerHubPassword)
+      displayName: 'Docker Login'
+      env:
+        DOCKER_HUB_PASSWORD: $(dockerHubPassword)
+      
+    - script: docker build -t $(registry)/$(dockerHubUsername)/$(imageName):$(Build.BuildId) .
+      displayName: 'Docker Build'
+
+    - script: docker scan $(registry)/$(dockerHubUsername)/$(imageName):$(Build.BuildId) --accept-license
+      displayName: 'Docker Security Scan'
+      
+    - script: docker push $(registry)/$(dockerHubUsername)/$(imageName):$(Build.BuildId)
+      displayName: 'Docker Push'
